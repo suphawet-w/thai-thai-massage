@@ -1,0 +1,32 @@
+# Render Blueprint — Go backend (API อย่างเดียว; หน้าเว็บอยู่บน Vercel)
+# ใช้งาน: Render Dashboard → New → Blueprint → เลือก repo นี้
+# ค่าที่ sync: false ต้องกรอกเองในหน้า Render (คัดลอกจาก backend/.env.production)
+services:
+  - type: web
+    name: thaithai-api
+    runtime: go
+    rootDir: backend
+    region: singapore
+    plan: free # แผนฟรีจะหลับเมื่อไม่มีคนใช้ ~15 นาที — เปิดร้านจริงแนะนำเปลี่ยนเป็น starter
+    buildCommand: go build -ldflags="-s -w" -o server ./cmd/server
+    startCommand: ./server
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: BOT_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false # โดเมนของ Vercel เช่น https://thai-thai-massage.vercel.app
+      - key: TRUST_PROXY
+        value: "true"
+      - key: SHOP_TIMEZONE
+        value: Asia/Bangkok
+      - key: JWT_TTL
+        value: 12h
