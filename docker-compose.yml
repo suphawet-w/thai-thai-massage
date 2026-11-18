@@ -1,0 +1,28 @@
+# สำหรับทดสอบในเครื่อง: Postgres ในเครื่องแทน Supabase
+# ใช้งาน: docker compose up --build  แล้วเปิด http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: massage
+      POSTGRES_PASSWORD: massage
+      POSTGRES_DB: thaithai
+    ports: ["5433:5432"]
+    volumes: [dbdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U massage -d thaithai"]
+      interval: 3s
+      retries: 10
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["8080:8080"]
+    environment:
+      DATABASE_URL: postgres://massage:massage@db:5432/thaithai?sslmode=disable
+      JWT_SECRET: local-dev-secret-change-me-0123456789abcdef
+      ADMIN_EMAIL: owner@thaithai.local
+      ADMIN_PASSWORD: owner12345
+      ALLOWED_ORIGINS: http://localhost:8080,http://localhost:5173
+volumes:
+  dbdata:
